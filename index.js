@@ -1,13 +1,18 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 4800;
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
 // middlewares
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -30,15 +35,23 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+
     // Send a ping to confirm a successful connection
     const menuCollection = client.db("bistroDb").collection("menu");
     const reviewsCollection = client.db("bistroDb").collection("reviews");
+    const cartCollection = client.db("bistroDb").collection("carts");
 
     // gettng anodemon ll menue data from db
 
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
+      res.send(result);
+    });
+
+    // *Carts collection
+    app.post("/carts", async (req, res) => {
+      const cartItem = req.body;
+      result = await cartCollection.insertOne(cartItem);
       res.send(result);
     });
 
